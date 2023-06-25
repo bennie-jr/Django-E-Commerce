@@ -1,20 +1,28 @@
-FROM python:3.9
+FROM python:3.10-alpine
 
-# Setting environment variables. (Good Practice)
+# Setting environment variables.
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-
-# Install dependencies
-RUN pip install django Pillow
-
-# Copy the django project
-COPY . /app/
 
 # Set the current working directory
 WORKDIR /app
 
-# Expose the necessary port for action
+# Copy the django project
+COPY . .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Set to this working directory
+WORKDIR /app/babyshop_app
+
+# Apply pending database migrations && ensure database schema is up to date 
+RUN python manage.py migrate
+
+# Expose the port to access app
 EXPOSE 8000
 
-# Set the start up command
-CMD [ "python3", "/app/babyshop_app/manage.py", "runserver", "0.0.0.0:8000"]
+# Start the app
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+
